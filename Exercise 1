@@ -1,0 +1,79 @@
+import static org.junit.Assert.*;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+
+import org.apache.commons.io.FileUtils;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+public class HipoTests {
+
+	public static WebDriver driver;
+
+	public static WebElement currentArticle;
+	public static List<WebElement> links;
+	public static int numberOfLinks;
+	public static WebElement linkElement;
+	public static JavascriptExecutor js;
+
+	@BeforeClass
+	public static void continueWithNews() {
+		System.setProperty("webdriver.chrome.driver", "/Users/sevvaltan/Downloads/chromedriver");
+		driver = new ChromeDriver();
+		driver.get("https://google.com.tr");
+		driver.manage().window().maximize();
+		js = (JavascriptExecutor) driver;
+	}
+
+	@Test
+	public void verifyCountry() {
+		assertEquals(driver.findElement(By.cssSelector("#SIvCob > a")).getText(), "Türkçe");
+	}
+
+	@Test
+	public void continueToSearch() {
+		WebElement emptyBox = driver
+				.findElement(By.cssSelector("#tsf > div:nth-child(2) > div > div.RNNXgb > div > div.a4bIc > input"));
+		emptyBox.sendKeys("Hipo Labs" + Keys.RETURN);
+
+		links = driver.findElements(By.className("iUh30"));
+		numberOfLinks = links.size();
+		for (int i = 0; i < numberOfLinks; i++) {
+			if (links.get(i).getText().equals("https://hipolabs.com/")) {
+				links.get(i).click();
+				break;
+			}
+		}
+	}
+
+	@Test
+	public void continueToTeam() {
+		driver.findElement(By.cssSelector("#menuMaximizedButtonTeam"));
+		js.executeScript(
+				"window.scrollBy(0, Math.max(document.documentElement.scrollHeight,document.body.scrollHeight,document.documentElement.clientHeight))");
+		assertEquals(driver.findElement(By.cssSelector("#pageTeamApplyInternshipLabel")).getText(),
+				"APPLY FOR INTERNSHIP");
+	}
+
+	@Test
+	public void takeAScreenshot() throws IOException {
+		File screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+		FileUtils.copyFile(screenshot, new File("/Users/sevvaltan/Desktop/HipoTeam.png"));
+	}
+
+	@AfterClass
+	public static void weAreDoneHere() {
+		driver.quit();
+	}
+}
